@@ -13,16 +13,23 @@ export default class Sketch {
 
     // Sizes
     this.sizes = {
+      // width: this.container.offsetWidth,
+      // height: this.container.offsetHeight,
       width: window.innerWidth,
       height: window.innerHeight,
     }
+
+    // Camera distance
+    this.cameraDistance = 600;
 
     // Scene
     this.scene = new THREE.Scene();
 
     // Camera 
-    this.camera = new THREE.PerspectiveCamera(70, this.sizes.width / this.sizes.height, 0.01, 10);
-    this.camera.position.z = 1;
+    this.camera = new THREE.PerspectiveCamera(70, this.sizes.width / this.sizes.height, 100, 2000);
+    this.camera.position.z = this.cameraDistance;
+    this.camera.fov =  2 * Math.atan((this.sizes.height / 2 ) / this.camera.position.z) * (180 / Math.PI)
+    this.camera.updateProjectionMatrix();
 
     // Time
     this.time = 0;
@@ -31,6 +38,7 @@ export default class Sketch {
     this.renderer = new THREE.WebGLRenderer({
       // canvas: this.canvas,
       antialias: true,
+      alpha: true
     });
     this.renderer.setSize(this.sizes.width, this.sizes.height);
     this.container.appendChild(this.renderer.domElement);
@@ -57,6 +65,7 @@ export default class Sketch {
 
     // Update camera
     this.camera.aspect = this.sizes.width / this.sizes.height;
+    this.camera.fov =  2 * Math.atan((this.sizes.height / 2 ) / this.camera.position.z) * (180 / Math.PI)
     this.camera.updateProjectionMatrix();
 
     // Update renderer
@@ -65,14 +74,15 @@ export default class Sketch {
   }
 
   setup() {
+    // this.camera.fov =  2 * Math.atan((this.sizes.height / 2 ) / this.camera.position.z) * THREE.Math.RAD2DEG;
     window.addEventListener("resize", () => this.resize())
   }
 
   addObjects() {
 
     // Geometry
-    this.geometry = new THREE.PlaneBufferGeometry(1, 1, 40, 40);
-    this.geometry = new THREE.SphereBufferGeometry(0.4, 40, 40);
+    this.geometry = new THREE.PlaneBufferGeometry(200, 400, 10, 10);
+    // this.geometry = new THREE.SphereBufferGeometry(0.4, 40, 40);
 
     // Material
     this.material = new THREE.ShaderMaterial({
@@ -80,7 +90,7 @@ export default class Sketch {
         uTime : {type: "f", value: 0},
         uTexture: {value: new THREE.TextureLoader().load(forest)}
       },
-      // wireframe: true,
+     // wireframe: true,
       side: THREE.DoubleSide,
       vertexShader: vertex,
       fragmentShader: fragment
