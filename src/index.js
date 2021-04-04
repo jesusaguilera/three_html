@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import vertex from "./glsl/vertex.glsl";
 import fragment from "./glsl/fragment.glsl";
 import "./assets/scss/main.scss";
+import forest from "./assets/images/forest.jpg";
 
 export default class Sketch {
   constructor(options) {
@@ -70,15 +71,17 @@ export default class Sketch {
   addObjects() {
 
     // Geometry
-    this.geometry = new THREE.PlaneBufferGeometry(0.5, 0.5, 50, 50);
+    this.geometry = new THREE.PlaneBufferGeometry(1, 1, 40, 40);
+    this.geometry = new THREE.SphereBufferGeometry(0.4, 40, 40);
 
     // Material
     this.material = new THREE.ShaderMaterial({
-      wireframe: true,
-      side: THREE.DoubleSide,
       uniforms: {
-        uTime : {type: "f", value: 0}
+        uTime : {type: "f", value: 0},
+        uTexture: {value: new THREE.TextureLoader().load(forest)}
       },
+      // wireframe: true,
+      side: THREE.DoubleSide,
       vertexShader: vertex,
       fragmentShader: fragment
     });
@@ -92,7 +95,12 @@ export default class Sketch {
   render() {
 
     // Update time
-    this.time +=  0.5;
+    this.time +=  0.05;
+
+    // Update material
+    if(this.material) {
+      this.material.uniforms.uTime.value = this.time;
+    }
 
     // Update render
     this.renderer.render( this.scene, this.camera );

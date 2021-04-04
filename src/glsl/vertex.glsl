@@ -73,33 +73,34 @@ float cnoise(vec3 P){
   return 2.2 * n_xyz;
 }
 
+// Varyings
+varying float vNoise;
 varying vec2 vUv;
 
+// Uniforms
+// With uniforms we connect CPU with GPU
+uniform float uTime;
+
 void main(){
-
-  vUv = uv;
-
+  vec3 newPosition = position;
   float PI = 3.141592;
 
-  vec3 newPosition = position;
+  // float noise = cnoise( vec3( position.x * 4.0, position.y * 4.0 + uTime * 0.10, 0. ) );
+  // vNoise = noise;
+  // uv is an coordinates attribute of vertex shader
+  vUv = uv;
 
-  /**
-   * Sin() function multiple transformations
-   */
-  // Basic sin fuction use
-  // newPosition.z += 0.05 * sin(newPosition.x * 70.);
-  
-  // Basic cnoise use
-  // newPosition.z += 0.1 * cnoise(vec3(position.x * 4.0, position.y * 4.0, 0.));
+  // With distance(uv, vec2(0.5)) we do center of the mesh be 0 
+  // float dist = distance(uv, vec2(0.5));
+  // newPosition.z += 0.05 * sin(dist * 20.0 + uTime);
+  float noise = cnoise( 2.5 * vec3( position.x, position.y, position.z + uTime * 0.05 ) );
+  newPosition += 0.1 * normal * noise;
+  // vNoise = noise;
+  // vNoise = dist;
 
-  // Simulating waves with sin function using PI number
-  // newPosition.z += 0.1 * sin( newPosition.x * 2.0 * PI );
-  // Simulating waves with sin function beginning the arc from center ( adding 0.25 ( half of plane size ) to newPosition.x )
-  newPosition.z += 0.1 * sin((newPosition.x + 0.25) * 2.0 * PI);
-  // Simulating waves with sin function beginning the arc from center ( inverse, subtracting 0.25( half of plane size ) )
-  // newPosition.z += 0.1 * sin( ( newPosition.x - 0.25 ) * 2.0 * PI );
-  // Simulating waves with sin function beginning the arc from center on X axis ( adding 0.25 ( half of plane size ) to newPosition.x )
-  // newPosition.x += 0.05 * sin((newPosition.y + 0.25) * 2.0 * PI);
+  // newPosition.z += 0.1 * sin( ( newPosition.x + 0.25 + uTime * 0.10 ) * 2.0 * PI );
+  // newPosition.z += 0.1 * noise;
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+
 }
