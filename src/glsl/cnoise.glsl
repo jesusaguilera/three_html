@@ -72,34 +72,3 @@ float cnoise(vec3 P){
   float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
   return 2.2 * n_xyz;
 }
-
-varying vec2 vUv;
-
-void main(){
-
-  vUv = uv;
-
-  float PI = 3.141592;
-
-  vec3 newPosition = position;
-
-  /**
-   * Sin() function multiple transformations
-   */
-  // Basic sin fuction use
-  // newPosition.z += 0.05 * sin(newPosition.x * 70.);
-  
-  // Basic cnoise use
-  // newPosition.z += 0.1 * cnoise(vec3(position.x * 4.0, position.y * 4.0, 0.));
-
-  // Simulating waves with sin function using PI number
-  // newPosition.z += 0.1 * sin( newPosition.x * 2.0 * PI );
-  // Simulating waves with sin function beginning the arc from center ( adding 0.25 ( half of plane size ) to newPosition.x )
-  newPosition.z += 0.1 * sin((newPosition.x + 0.25) * 2.0 * PI);
-  // Simulating waves with sin function beginning the arc from center ( inverse, subtracting 0.25( half of plane size ) )
-  // newPosition.z += 0.1 * sin( ( newPosition.x - 0.25 ) * 2.0 * PI );
-  // Simulating waves with sin function beginning the arc from center on X axis ( adding 0.25 ( half of plane size ) to newPosition.x )
-  // newPosition.x += 0.05 * sin((newPosition.y + 0.25) * 2.0 * PI);
-
-  gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-}

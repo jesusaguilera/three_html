@@ -66,12 +66,9 @@ module.exports = {
       },
       // GLSL
       {
-        test: /\.(glsl|frag|vert)$/,
         exclude: /node_modules/,
-        use: [
-          "raw-loader",
-          "glslify-loader",
-        ]
+        test: /\.(frag|vert|glsl)$/,
+        loader: 'glsl-shader-loader'
       }
     ],
   },

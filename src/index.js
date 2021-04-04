@@ -70,10 +70,12 @@ export default class Sketch {
   addObjects() {
 
     // Geometry
-    this.geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+    this.geometry = new THREE.PlaneBufferGeometry(0.5, 0.5, 50, 50);
 
     // Material
     this.material = new THREE.ShaderMaterial({
+      wireframe: true,
+      side: THREE.DoubleSide,
       uniforms: {
         uTime : {type: "f", value: 0}
       },
