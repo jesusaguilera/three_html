@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import imagesLoaded from "imagesloaded";
+import FontFaceObserver from "fontfaceobserver";
 import vertex from "./glsl/vertex.glsl";
 import fragment from "./glsl/fragment.glsl";
 import "./assets/scss/main.scss";
@@ -47,14 +49,55 @@ export default class Sketch {
     this.controls = new OrbitControls( this.camera, this.renderer.domElement );
     this.controls.enableDamping = true;
 
-    // Render
-    this.render();
+    // Images
+    this.images = [...document.querySelectorAll("img")];
 
-    // Objects
-    this.addObjects();
+    // Fonts loaded
+    const fontOpen = new Promise( resolve => {
+      new FontFaceObserver("Open Sans")
+        .load()
+        .then(() => {
+          resolve();
+        });
+    });
 
-    // Setup
-    this.setup()
+    const fontPlayfair = new Promise( resolve => {
+      new FontFaceObserver("Playfair Display")
+        .load()
+        .then(()=> {
+          resolve();
+        });
+    });
+
+    // Preload images
+    const preloadImages = new Promise(( resolve, reject ) => {
+      imagesLoaded(
+        document.querySelectorAll("img"), 
+        { background: true }, 
+        resolve()
+      );
+    });
+
+    let allDone = [fontOpen, fontPlayfair, preloadImages];
+
+    Promise.all(allDone).then(() => {
+
+      // Add images
+      this.addImages();
+      this.setPosition();
+
+      // Resize
+      this.resize()
+      this.setupResize()
+
+      // Objects
+      this.addObjects();
+
+      // Render
+      this.render();
+
+    })
+
   }
 
   resize() {
@@ -73,9 +116,47 @@ export default class Sketch {
 
   }
 
-  setup() {
+  setupResize() {
     // this.camera.fov =  2 * Math.atan((this.sizes.height / 2 ) / this.camera.position.z) * THREE.Math.RAD2DEG;
     window.addEventListener("resize", () => this.resize())
+  }
+
+  addImages() {
+    this.imageStore = this.images.map(( img, index ) => {
+
+      let bounds  = img.getBoundingClientRect();
+
+      let geometry = new THREE.PlaneBufferGeometry(bounds.width, bounds.height, 1, 1);
+      let texture = new THREE.Texture(img);
+      texture.needsUpdate = true;
+      let material = new THREE.MeshBasicMaterial({ 
+        // color: 0xff0000 ,
+        map: texture
+      });
+      let mesh = new THREE.Mesh(geometry, material);
+      this.scene.add(mesh);
+      console.log(bounds);
+
+      return {
+        img: img,
+        mesh: mesh,
+        top: bounds.top,
+        left: bounds.left,
+        width: bounds.width,
+        height: bounds.height
+      }
+
+    })
+
+  }
+
+  setPosition() {
+
+    this.imageStore.forEach( o => {
+      o.mesh.position.y = -o.top + this.sizes.height * 0.5 - o.height * 0.5;
+      o.mesh.position.x = o.left - this.sizes.width * 0.5 + o.width * 0.5;
+    })
+
   }
 
   addObjects() {
@@ -125,6 +206,10 @@ export default class Sketch {
 
 }
 
-new Sketch({
-  dom: document.body
-});
+window.onload = () => {
+
+  new Sketch({
+    dom: document.body
+  });
+
+}

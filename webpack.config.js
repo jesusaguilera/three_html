@@ -1,31 +1,34 @@
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
+  entry: {
+    main: path.resolve(__dirname, './src/index.js'),
+  },
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    filename: '[name].bundle.js',
+    assetModuleFilename: 'images/[hash][ext][query]'
+  },
   module: {
     rules: [
-      // ES6
       {
-        test: /\.jsx?$/i,
+        test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-        },
+        use: ['babel-loader'],
       },
-      // Html
       {
-        test: /\.html$/i,
-        use: [
-          {
-            loader: "html-loader",
-            options: {
-              minimize: true,
-            },
-          },
-        ],
+        test: /\.(?:ico|gif|png|jpg|jpeg)$/i,
+        type: 'asset/resource',
       },
-      // SASS
+      {
+        exclude: /node_modules/,
+        test: /\.(frag|vert|glsl)$/,
+        loader: 'glsl-shader-loader'
+      },
       {
         test: /\.scss/i,
         use: [
@@ -39,52 +42,17 @@ module.exports = {
           "sass-loader",
         ],
       },
-      // IMAGES
-      {
-        test: /\.(png|jpe?g|gif|svg|webp)$/i,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              outputPath: "./images",
-            },
-          },
-          "image-webpack-loader",
-        ],
-      },
-      // FONT
-      {
-        test: /\.(ttf|otf|woff)$/i,
-        use: {
-          loader: "file-loader",
-          options: {
-            // publicPath relative to scss
-            publicPath: "../fonts",
-            outputPath: "./fonts",
-          },
-        },
-      },
-      // GLSL
-      {
-        exclude: /node_modules/,
-        test: /\.(frag|vert|glsl)$/,
-        loader: 'glsl-shader-loader'
-      }
     ],
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [new CssMinimizerPlugin()],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./src/index.html",
-      filename: "./index.html",
-      // chunks: ["js"],
-      // hash: true
+      title: "ThreeJS and HTML",
+      template: path.resolve(__dirname, './src/index.html'),
+      filename: 'index.html',
     }),
+    new CleanWebpackPlugin(),
     new MiniCSSExtractPlugin({
       filename: "./css/main.css",
     }),
   ],
-};
+}
